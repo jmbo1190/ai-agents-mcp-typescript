@@ -45,8 +45,8 @@ cp .env.example .env  # Then add your OPENAI_API_KEY
 | Model Context Protocol & AI Agents | Video | — | — |
 | What is an MCP Server? | Video | — | — |
 | Tool Specifications | Video | — | — |
-| **Building Your First MCP Server** | Ungraded Plugin | `01-intro-to-mcp-agents/code/src/server.ts` | `npm run server` |
-| **Building Your First MCP AI Agent** | Ungraded Plugin | `01-intro-to-mcp-agents/code/src/agent.ts`<br>`01-intro-to-mcp-agents/code/src/llm.ts` | `npm run agent` |
+| **Building Your First MCP Server** | Ungraded Plugin | `01-intro-to-mcp-agents/code/server.ts` | `npm run server` |
+| **Building Your First MCP AI Agent** | Ungraded Plugin | `01-intro-to-mcp-agents/code/agent.ts`<br>`01-intro-to-mcp-agents/code/llm.ts` | `npm run agent` |
 | Agents Talking to Tools vs. Tools with AI | Video | — | — |
 
 **Code Location:** `01-intro-to-mcp-agents/code/`
@@ -54,10 +54,10 @@ cp .env.example .env  # Then add your OPENAI_API_KEY
 **Key Files:**
 | Path | Description |
 |------|-------------|
-| `01-intro-to-mcp-agents/code/src/server.ts` | Basic MCP tool server with `list_files` and `read_file` tools |
-| `01-intro-to-mcp-agents/code/src/agent.ts` | Agent loop implementation (PERCEIVE→DECIDE→ACT→OBSERVE) |
-| `01-intro-to-mcp-agents/code/src/llm.ts` | LLM integration utilities (OpenAI/Anthropic) |
-| `01-intro-to-mcp-agents/code/src/test-server.ts` | Tests server tools directly without an agent |
+| `01-intro-to-mcp-agents/code/server.ts` | Basic MCP tool server with `list_files` and `read_file` tools |
+| `01-intro-to-mcp-agents/code/agent.ts` | Agent loop implementation (PERCEIVE→DECIDE→ACT→OBSERVE) |
+| `01-intro-to-mcp-agents/code/llm.ts` | LLM integration utilities (OpenAI/Anthropic) |
+| `01-intro-to-mcp-agents/code/test-server.ts` | Tests server tools directly without an agent |
 
 **Commands:**
 ```bash
@@ -75,19 +75,19 @@ npm run test-server  # Test server tools directly
 | Item | Type | Code Files | Run Command |
 |------|------|------------|-------------|
 | Resources | Video | — | — |
-| **Teaching Agents to Use Tools** | Ungraded Plugin | `01-intro-to-mcp-agents/code/src/workspace-server.ts` | `npm run workspace-server` |
-| **Teaching Agents to Seek Help** | Ungraded Plugin | `01-intro-to-mcp-agents/code/src/workspace-server.ts` | `npm run workspace-server` |
-| **Helping Agents Find Guidance** | Ungraded Plugin | `01-intro-to-mcp-agents/code/src/workspace-server.ts` | `npm run workspace-server` |
-| **Helping AI Agents on the Fly** | Ungraded Plugin | `01-intro-to-mcp-agents/code/src/workspace-server.ts` | `npm run workspace-server` |
-| **Helping AI Agents Discover Workspace-related Guidance** | Ungraded Plugin | `01-intro-to-mcp-agents/code/src/workspace-server.ts`<br>`01-intro-to-mcp-agents/code/src/workspace-agent.ts` | `npm run workspace-agent` |
+| **Teaching Agents to Use Tools** | Ungraded Plugin | `01-intro-to-mcp-agents/code/workspace-server.ts` | `npm run workspace-server` |
+| **Teaching Agents to Seek Help** | Ungraded Plugin | `01-intro-to-mcp-agents/code/workspace-server.ts` | `npm run workspace-server` |
+| **Helping Agents Find Guidance** | Ungraded Plugin | `01-intro-to-mcp-agents/code/workspace-server.ts` | `npm run workspace-server` |
+| **Helping AI Agents on the Fly** | Ungraded Plugin | `01-intro-to-mcp-agents/code/workspace-server.ts` | `npm run workspace-server` |
+| **Helping AI Agents Discover Workspace-related Guidance** | Ungraded Plugin | `01-intro-to-mcp-agents/code/workspace-server.ts`<br>`01-intro-to-mcp-agents/code/workspace-agent.ts` | `npm run workspace-agent` |
 
 **Code Location:** `01-intro-to-mcp-agents/code/`
 
 **Key Files:**
 | Path | Description |
 |------|-------------|
-| `01-intro-to-mcp-agents/code/src/workspace-server.ts` | Enhanced server with workspace-aware tools and context discovery |
-| `01-intro-to-mcp-agents/code/src/workspace-agent.ts` | Agent that works within a defined workspace with context awareness |
+| `01-intro-to-mcp-agents/code/workspace-server.ts` | Enhanced server with workspace-aware tools and context discovery |
+| `01-intro-to-mcp-agents/code/workspace-agent.ts` | Agent that works within a defined workspace with context awareness |
 | `01-intro-to-mcp-agents/code/workspace/` | Sample workspace with `.context.md` files for testing |
 
 **Commands:**
@@ -189,13 +189,13 @@ npm run test         # Run comparison tests
 
 | Module | Coursera Item | Code File |
 |--------|---------------|-----------|
-| 2 | Building Your First MCP Server | `01-intro-to-mcp-agents/code/src/server.ts` |
-| 2 | Building Your First MCP AI Agent | `01-intro-to-mcp-agents/code/src/agent.ts` |
-| 3 | Teaching Agents to Use Tools | `01-intro-to-mcp-agents/code/src/workspace-server.ts` |
-| 3 | Teaching Agents to Seek Help | `01-intro-to-mcp-agents/code/src/workspace-server.ts` |
-| 3 | Helping Agents Find Guidance | `01-intro-to-mcp-agents/code/src/workspace-server.ts` |
-| 3 | Helping AI Agents on the Fly | `01-intro-to-mcp-agents/code/src/workspace-server.ts` |
-| 3 | Helping AI Agents Discover Workspace-related Guidance | `01-intro-to-mcp-agents/code/src/workspace-agent.ts` |
+| 2 | Building Your First MCP Server | `01-intro-to-mcp-agents/code/server.ts` |
+| 2 | Building Your First MCP AI Agent | `01-intro-to-mcp-agents/code/agent.ts` |
+| 3 | Teaching Agents to Use Tools | `01-intro-to-mcp-agents/code/workspace-server.ts` |
+| 3 | Teaching Agents to Seek Help | `01-intro-to-mcp-agents/code/workspace-server.ts` |
+| 3 | Helping Agents Find Guidance | `01-intro-to-mcp-agents/code/workspace-server.ts` |
+| 3 | Helping AI Agents on the Fly | `01-intro-to-mcp-agents/code/workspace-server.ts` |
+| 3 | Helping AI Agents Discover Workspace-related Guidance | `01-intro-to-mcp-agents/code/workspace-agent.ts` |
 | 4 | Responses are More than Data | `02-failing-forward/code/src/expense-server.ts` |
 | 4 | Designing Errors to Help AI Agents | `02-failing-forward/code/src/expense-server.ts` |
 | 4 | Errors in Complex Workflows | `02-failing-forward/code/src/expense-server.ts` |
@@ -226,14 +226,13 @@ code-repo/
 │
 ├── 01-intro-to-mcp-agents/
 │   └── code/
-│       └── src/
-│           ├── server.ts              # Module 2: Building Your First MCP Server
-│           ├── agent.ts               # Module 2: Building Your First MCP AI Agent
-│           ├── llm.ts                 # LLM utilities
-│           ├── workspace-server.ts    # Module 3: All workspace/context items
-│           ├── workspace-agent.ts     # Module 3: Workspace-related Guidance
-│           ├── test-server.ts         # Server testing
-│           └── workspace/             # Sample workspace with .context.md files
+│       ├── server.ts              # Module 2: Building Your First MCP Server
+│       ├── agent.ts               # Module 2: Building Your First MCP AI Agent
+│       ├── llm.ts                 # LLM utilities
+│       ├── workspace-server.ts    # Module 3: All workspace/context items
+│       ├── workspace-agent.ts     # Module 3: Workspace-related Guidance
+│       ├── test-server.ts         # Server testing
+│       └── workspace/             # Sample workspace with .context.md files
 │
 ├── 02-failing-forward/
 │   └── code/
