@@ -1,0 +1,28 @@
+{
+  "name": "intelligence-budget-examples",
+  "version": "1.0.0",
+  "description": "Intelligence Budget pattern examples - comparing agent-heavy, tool-heavy, and hybrid approaches",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "npx tsx src/test-all.ts",
+    "agent-heavy": "npx tsx src/agent-heavy-server.ts",
+    "tool-heavy": "npx tsx src/tool-heavy-server.ts",
+    "hybrid": "npx tsx src/hybrid-server.ts",
+    "agent:agent-heavy": "npx tsx src/agent-agent-heavy.ts",
+    "agent:tool-heavy": "npx tsx src/agent-tool-heavy.ts",
+    "agent:hybrid": "npx tsx src/agent-hybrid.ts",
+    "compare": "npx tsx src/compare-all.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "dotenv": "^16.3.1",
+    "openai": "^4.96.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
+  }
+}

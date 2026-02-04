@@ -1,0 +1,23 @@
+{
+  "name": "failing-forward-examples",
+  "version": "1.0.0",
+  "description": "Failing Forward pattern examples - errors that teach agents how to succeed",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "server": "npx tsx src/expense-server.ts",
+    "agent": "npx tsx src/expense-agent.ts",
+    "test": "npx tsx src/test-failing-forward.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "dotenv": "^16.3.1",
+    "openai": "^4.67.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
+  }
+}
