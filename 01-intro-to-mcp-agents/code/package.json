@@ -1,0 +1,24 @@
+{
+  "name": "intro-to-mcp-agents",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Code examples for the Intro to MCP Agents tutorials",
+  "scripts": {
+    "server": "tsx server.ts",
+    "agent": "tsx agent.ts",
+    "test-server": "tsx test-server.ts",
+    "workspace-server": "tsx workspace-server.ts",
+    "workspace-agent": "tsx workspace-agent.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "dotenv": "^16.3.1",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}
