@@ -159,10 +159,13 @@ async function runWorkspaceAgent(userMessage: string) {
         const isError = result.isError === true;
 
         // Show a preview of the result
-        const preview = resultText.substring(0, 300);
-        console.log(
-          `Result${isError ? " (error)" : ""}: ${preview}${resultText.length > 300 ? "..." : ""}`,
-        );
+        // const preview = resultText.substring(0, 300);
+        // console.log(
+        //   `Result${isError ? " (error)" : ""}: ${preview}${resultText.length > 300 ? "..." : ""}`,
+        // );
+        if (isError) {
+          console.log(`Result (error): ${resultText}`);
+        }
 
         // Add the interaction to conversation history
         messages.push(
@@ -195,10 +198,11 @@ async function runWorkspaceAgent(userMessage: string) {
 
 // Main entry point
 // ========================================
-let userMessage = process.argv[2]; // || "What files are in the current directory?";
+let userMessage; // || "What files are in the current directory?";
+const defaultQuestion = process.argv[2] || "What directories are available and what are their rules?";
 
 if (!userMessage) {
-  // prompt the user to enter an API key and await input
+  // prompt the user to enter a Question and await input
   const readline = await import("node:readline");
   const rl = readline.createInterface({
     input: process.stdin,
@@ -207,7 +211,6 @@ if (!userMessage) {
 
   const question = (query: string) =>
     new Promise<string>((resolve) => rl.question(query, resolve));
-  const defaultQuestion = "What directories are available and what are their rules?";
 
   userMessage = await question(
     `Enter your question to the file research agent [${defaultQuestion}]: `,
