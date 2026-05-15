@@ -35,7 +35,7 @@ function getResultText(result: any): string {
 
 async function runAgent(userMessage: string) {
   // Create LLM (auto-detects from environment variables)
-  const llm = createLLMFromEnv();
+  const llm = await createLLMFromEnv();
 
   // ========================================
   // PERCEIVE: Connect to MCP server and discover tools
