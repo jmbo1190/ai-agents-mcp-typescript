@@ -20,46 +20,56 @@ const server = new McpServer({
 });
 
 // Tool 1: List directory contents
-server.tool(
+server.registerTool(
   "list_files",
-  "List files and directories in a given path",
   {
-    path: z.string().describe("Directory path to list (use '.' for current directory)"),
+    description: "List files and directories in a given path",
+    inputSchema: z.object({
+      path: z
+        .string()
+        .describe("Directory path to list (use '.' for current directory)"),
+    }),
   },
   async ({ path: dirPath }) => {
     try {
       const absolutePath = path.resolve(dirPath);
       const entries = await fs.readdir(absolutePath, { withFileTypes: true });
 
-      const lines = entries.map(entry => {
+      const lines = entries.map((entry) => {
         const icon = entry.isDirectory() ? "📁" : "📄";
         return `${icon} ${entry.name}`;
       });
 
       return {
-        content: [{
-          type: "text" as const,
-          text: lines.length > 0 ? lines.join("\n") : "(empty directory)",
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: lines.length > 0 ? lines.join("\n") : "(empty directory)",
+          },
+        ],
       };
     } catch (error) {
       return {
-        content: [{
-          type: "text" as const,
-          text: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
+          },
+        ],
         isError: true,
       };
     }
-  }
+  },
 );
 
 // Tool 2: Read file contents
-server.tool(
+server.registerTool(
   "read_file",
-  "Read the contents of a text file",
   {
-    path: z.string().describe("Path to the file to read"),
+    description: "Read the contents of a text file",
+    inputSchema: z.object({
+      path: z.string().describe("Path to the file to read"),
+    }),
   },
   async ({ path: filePath }) => {
     try {
@@ -67,21 +77,25 @@ server.tool(
       const content = await fs.readFile(absolutePath, "utf-8");
 
       return {
-        content: [{
-          type: "text" as const,
-          text: content,
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: content,
+          },
+        ],
       };
     } catch (error) {
       return {
-        content: [{
-          type: "text" as const,
-          text: `Error: Could not read file "${filePath}". ${error instanceof Error ? error.message : "Unknown error"}`,
-        }],
+        content: [
+          {
+            type: "text" as const,
+            text: `Error: Could not read file "${filePath}". ${error instanceof Error ? error.message : "Unknown error"}`,
+          },
+        ],
         isError: true,
       };
     }
-  }
+  },
 );
 
 // Start the server

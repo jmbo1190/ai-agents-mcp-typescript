@@ -23,13 +23,16 @@ const server = new McpServer({
 // TOOLS (same as before)
 // ============================================
 
-server.tool(
+server.registerTool(
   "list_files",
+  {
+    description: 
   `List files and directories in a given path.
 
 TIP: Read resource://files/guide for best practices on exploring directories.`,
-  {
-    path: z.string().describe("Directory path to list (use '.' for current directory)"),
+    inputSchema: z.object({
+      path: z.string().describe("Directory path to list (use '.' for current directory)"),
+    }),
   },
   async ({ path: dirPath }) => {
     try {
@@ -59,13 +62,15 @@ TIP: Read resource://files/guide for best practices on exploring directories.`,
   }
 );
 
-server.tool(
+server.registerTool(
   "read_file",
-  `Read the contents of a text file.
+  {
+  description: `Read the contents of a text file.
 
 TIP: Read resource://files/guide for tips on which files to examine first.`,
-  {
-    path: z.string().describe("Path to the file to read"),
+    inputSchema: z.object({
+      path: z.string().describe("Path to the file to read"),
+    }),
   },
   async ({ path: filePath }) => {
     try {
@@ -101,7 +106,7 @@ TIP: Read resource://files/guide for tips on which files to examine first.`,
 // ============================================
 
 // Resource 1: Usage guide for the file tools
-server.resource(
+server.registerResource(
   "guide",
   "resource://files/guide",
   {
@@ -171,7 +176,7 @@ If you encounter an error:
 );
 
 // Resource 2: Common file patterns and what they mean
-server.resource(
+server.registerResource(
   "patterns",
   "resource://files/patterns",
   {
