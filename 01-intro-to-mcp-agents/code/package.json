@@ -6,6 +6,7 @@
   "scripts": {
     "server": "tsx server.ts",
     "agent": "tsx agent.ts",
+    "agent:ex1": "tsx agent.ts \"Read package.json and explain the dependencies\"",
     "test-server": "tsx test-server.ts",
     "workspace-server": "tsx workspace-server.ts",
     "workspace-agent": "tsx workspace-agent.ts",
