@@ -11,7 +11,7 @@
  *   npx tsx agent.ts "Read package.json and explain the dependencies"
  */
 
-import "dotenv/config";
+import "dotenv/config";  // Load API keys from .env file (if any)
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { createLLMFromEnv, Message, Tool } from "./llm.js";
@@ -123,8 +123,8 @@ When you have enough information to answer the question, provide a clear, well-o
         messages.push({
           role: "assistant",
           content: `I'll use the ${toolCall.name} tool.`,
-        });
-        messages.push({
+        },
+        {
           role: "user",
           content: `Tool result:\n${resultText}`,
         });
