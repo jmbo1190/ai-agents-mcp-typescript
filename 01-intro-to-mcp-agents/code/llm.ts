@@ -39,8 +39,8 @@ export interface LLMProvider {
 // === Providers ===
 
 export class AnthropicProvider implements LLMProvider {
-   private apiKey: string;
-   private model: string;
+   private readonly apiKey: string;
+   private readonly model: string;
 
    constructor(apiKey: string, model: string = "claude-sonnet-4-20250514") {
       this.apiKey = apiKey;
@@ -100,8 +100,8 @@ export class AnthropicProvider implements LLMProvider {
 }
 
 export class OpenAIProvider implements LLMProvider {
-   private apiKey: string;
-   private model: string;
+   private readonly apiKey: string;
+   private readonly model: string;
 
    constructor(apiKey: string, model: string = "gpt-4o") {
       this.apiKey = apiKey;
