@@ -18,8 +18,10 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { createLLMFromEnv, Message, Tool } from "./llm.js";
 
 // Convert MCP tools to our LLM format
-function mcpToolsToLLMTools(mcpTools: { name: string; description?: string; inputSchema: unknown }[]): Tool[] {
-  return mcpTools.map(t => ({
+function mcpToolsToLLMTools(
+  mcpTools: { name: string; description?: string; inputSchema: unknown }[],
+): Tool[] {
+  return mcpTools.map((t) => ({
     name: t.name,
     description: t.description || `Tool: ${t.name}`,
     // MCP SDK returns inputSchema as unknown, but we know it matches JSON Schema
@@ -33,7 +35,7 @@ function getResultText(result: any): string {
   if (!result.content || result.content.length === 0) return "(no output)";
   return result.content
     .map((c: { type: string; text?: string }) =>
-      c.type === "text" ? c.text : JSON.stringify(c)
+      c.type === "text" ? c.text : JSON.stringify(c),
     )
     .join("\n");
 }
@@ -93,7 +95,7 @@ All paths are relative to the workspace root. Use paths like:
 
 async function runWorkspaceAgent(userMessage: string) {
   // Create LLM (auto-detects from environment variables)
-  const llm = createLLMFromEnv();
+  const llm = await createLLMFromEnv();
 
   // Connect to the workspace server
   console.log("Connecting to workspace server...\n");
@@ -105,7 +107,7 @@ async function runWorkspaceAgent(userMessage: string) {
 
   const client = new Client(
     { name: "workspace-agent", version: "1.0.0" },
-    { capabilities: {} }
+    { capabilities: {} },
   );
 
   await client.connect(transport);
@@ -113,12 +115,20 @@ async function runWorkspaceAgent(userMessage: string) {
   // Discover tools
   const { tools: mcpTools } = await client.listTools();
   const tools = mcpToolsToLLMTools(mcpTools);
-  console.log(`Discovered ${tools.length} tools: ${tools.map(t => t.name).join(", ")}\n`);
+  console.log(
+    `Discovered ${tools.length} tools: ${tools.map((t) => t.name).join(", ")}\n`,
+  );
 
   // Initialize conversation
   const messages: Message[] = [
-    { role: "system", content: systemPrompt },
-    { role: "user", content: userMessage },
+    {
+      role: "system",
+      content: systemPrompt
+    },
+    {
+      role: "user",
+      content: userMessage,
+    },
   ];
 
   // The Agent Loop
@@ -135,7 +145,9 @@ async function runWorkspaceAgent(userMessage: string) {
     if (response.toolCalls.length > 0) {
       // ACT: Execute each tool call
       for (const toolCall of response.toolCalls) {
-        console.log(`Calling: ${toolCall.name}(${JSON.stringify(toolCall.arguments)})`);
+        console.log(
+          `Calling: ${toolCall.name}(${JSON.stringify(toolCall.arguments)})`,
+        );
 
         const result = await client.callTool({
           name: toolCall.name,
@@ -148,17 +160,21 @@ async function runWorkspaceAgent(userMessage: string) {
 
         // Show a preview of the result
         const preview = resultText.substring(0, 300);
-        console.log(`Result${isError ? " (error)" : ""}: ${preview}${resultText.length > 300 ? "..." : ""}`);
+        console.log(
+          `Result${isError ? " (error)" : ""}: ${preview}${resultText.length > 300 ? "..." : ""}`,
+        );
 
         // Add the interaction to conversation history
-        messages.push({
-          role: "assistant",
-          content: `I'll use the ${toolCall.name} tool.`,
-        });
-        messages.push({
-          role: "user",
-          content: `Tool result:\n${resultText}`,
-        });
+        messages.push(
+          {
+            role: "assistant",
+            content: `I'll use the ${toolCall.name} tool.`,
+          },
+          {
+            role: "user",
+            content: `Tool result:\n${resultText}`,
+          },
+        );
       }
     } else {
       // FINISH: No tool call means the LLM is done
@@ -178,14 +194,34 @@ async function runWorkspaceAgent(userMessage: string) {
 }
 
 // Main entry point
-const userMessage = process.argv[2] || "What directories are available and what are their rules?";
+// ========================================
+let userMessage = process.argv[2]; // || "What files are in the current directory?";
+
+if (!userMessage) {
+  // prompt the user to enter an API key and await input
+  const readline = await import("node:readline");
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  const question = (query: string) =>
+    new Promise<string>((resolve) => rl.question(query, resolve));
+  const defaultQuestion = "What directories are available and what are their rules?";
+
+  userMessage = await question(
+    `Enter your question to the file research agent [${defaultQuestion}]: `,
+  );
+  userMessage = userMessage.trim() || defaultQuestion;
+  rl.close();
+}
 
 console.log("=".repeat(50));
 console.log("CONTEXT-AWARE WORKSPACE AGENT");
 console.log("=".repeat(50));
 console.log(`\nQuestion: ${userMessage}\n`);
 
-runWorkspaceAgent(userMessage).catch(error => {
+runWorkspaceAgent(userMessage).catch((error) => {
   console.error("Agent error:", error.message);
   process.exit(1);
 });
