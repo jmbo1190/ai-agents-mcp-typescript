@@ -11,14 +11,14 @@
  *   npx tsx agent.ts "Read package.json and explain the dependencies"
  */
 
-import "dotenv/config";  // Load API keys from .env file (if any)
+import "dotenv/config"; // Load API keys from .env file (if any)
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { createLLMFromEnv, Message, Tool } from "./llm.js";
 
 // Convert MCP tools to our LLM format
 function mcpToolsToLLMTools(mcpTools: any[]): Tool[] {
-  return mcpTools.map(t => ({
+  return mcpTools.map((t) => ({
     name: t.name,
     description: t.description || `Tool: ${t.name}`,
     inputSchema: t.inputSchema,
@@ -49,14 +49,16 @@ async function runAgent(userMessage: string) {
 
   const client = new Client(
     { name: "file-research-agent", version: "1.0.0" },
-    { capabilities: {} }
+    { capabilities: {} },
   );
 
   await client.connect(transport);
 
   const { tools: mcpTools } = await client.listTools();
   const tools = mcpToolsToLLMTools(mcpTools);
-  console.log(`Discovered ${tools.length} tools: ${tools.map(t => t.name).join(", ")}\n`);
+  console.log(
+    `Discovered ${tools.length} tools: ${tools.map((t) => t.name).join(", ")}\n`,
+  );
 
   // Initialize conversation with system prompt
   const messages: Message[] = [
@@ -78,7 +80,10 @@ When researching a question:
 Be thorough but concise. If you need to read multiple files to answer a question, do so.
 When you have enough information to answer the question, provide a clear, well-organized response.`,
     },
-    { role: "user", content: userMessage },
+    {
+      role: "user",
+      content: userMessage,
+    },
   ];
 
   // ========================================
@@ -101,7 +106,9 @@ When you have enough information to answer the question, provide a clear, well-o
       // ACT: Execute each tool call
       // ========================================
       for (const toolCall of response.toolCalls) {
-        console.log(`Calling: ${toolCall.name}(${JSON.stringify(toolCall.arguments)})`);
+        console.log(
+          `Calling: ${toolCall.name}(${JSON.stringify(toolCall.arguments)})`,
+        );
 
         const result = await client.callTool({
           name: toolCall.name,
@@ -116,18 +123,22 @@ When you have enough information to answer the question, provide a clear, well-o
 
         // Show a preview of the result
         const preview = resultText.substring(0, 200);
-        console.log(`Result${isError ? " (error)" : ""}: ${preview}${resultText.length > 200 ? "..." : ""}`);
+        console.log(
+          `Result${isError ? " (error)" : ""}: ${preview}${resultText.length > 200 ? "..." : ""}`,
+        );
 
         // Add the interaction to conversation history
         // This allows the LLM to see what happened and decide what to do next
-        messages.push({
-          role: "assistant",
-          content: `I'll use the ${toolCall.name} tool.`,
-        },
-        {
-          role: "user",
-          content: `Tool result:\n${resultText}`,
-        });
+        messages.push(
+          {
+            role: "assistant",
+            content: `I'll use the ${toolCall.name} tool.`,
+          },
+          {
+            role: "user",
+            content: `Tool result:\n${resultText}`,
+          },
+        );
       }
 
       // REPEAT: Loop continues to next iteration
@@ -153,14 +164,33 @@ When you have enough information to answer the question, provide a clear, well-o
 // ========================================
 // Main entry point
 // ========================================
-const userMessage = process.argv[2] || "What files are in the current directory?";
+let userMessage = process.argv[2]; // || "What files are in the current directory?";
+
+if (!userMessage) {
+  // prompt the user to enter an API key and await input
+  const readline = await import("node:readline");
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  const question = (query: string) =>
+    new Promise<string>((resolve) => rl.question(query, resolve));
+  const defaultQuestion = "What files are in the current directory?";
+
+  userMessage = await question(
+    `Enter your question to the file research agent [${defaultQuestion}]: `,
+  );
+  userMessage = userMessage.trim() || defaultQuestion;
+  rl.close();
+}
 
 console.log("=".repeat(50));
 console.log("FILE RESEARCH AGENT");
 console.log("=".repeat(50));
 console.log(`\nQuestion: ${userMessage}\n`);
 
-runAgent(userMessage).catch(error => {
+runAgent(userMessage).catch((error) => {
   console.error("Agent error:", error.message);
   process.exit(1);
 });
