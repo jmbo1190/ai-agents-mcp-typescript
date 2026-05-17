@@ -13,18 +13,35 @@
 import "dotenv/config";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { fileURLToPath } from "node:url";
+import * as fs from "node:fs";
+import * as path from "node:path";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ============================================================================
 // Helpers
 // ============================================================================
 
 function getResultText(result: any): string {
+  if (result.isError) {
+    return `Error: ${result.content?.[0]?.text || "Unknown error"}`;
+  }
   if (!result.content?.length) return "(no output)";
   return result.content.map((c: any) => (c.type === "text" ? c.text : JSON.stringify(c))).join("\n");
 }
 
 function parseResult(result: any): any {
-  return JSON.parse(getResultText(result));
+  let text = getResultText(result);
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch (error) {
+    console.error("Failed to parse result as JSON:", text);
+    console.error("Error details:", error instanceof Error ? error.message : error);
+    return { status: "failed", error: "invalid_response", message: text };
+  }
+  return json;
 }
 
 // ============================================================================
@@ -38,10 +55,23 @@ async function runDemo() {
   console.log("\nThis demo shows how tool responses guide agent behavior.");
   console.log("Notice how each error response includes next_action and hints.\n");
 
+  // Dynamically resolve the path to expense-server.ts
+  let serverPath;
+  serverPath = path.resolve(__dirname, "expense-server.ts");
+  if (!fs.existsSync(serverPath)) {
+    serverPath = path.resolve(__dirname, "src", "expense-server.ts");
+  }
+  if (fs.existsSync(serverPath)) {
+    console.log(`Found expense server at: ${serverPath}\n`);
+  } else {
+    console.error("Error: Could not find expense-server.ts at expected paths.");
+    process.exit(1);
+  }
+
   // Connect to the expense server
   const transport = new StdioClientTransport({
-    command: "npx",
-    args: ["tsx", "src/expense-server.ts"],
+    command: "node",
+    args: ["--import", "tsx", "--inspect=0", serverPath],
   });
 
   const client = new Client({ name: "demo-client", version: "1.0.0" }, { capabilities: {} });
@@ -206,6 +236,31 @@ async function runDemo() {
   console.log(JSON.stringify(demo5Result, null, 2));
   console.log("\n📌 Success responses also provide guidance:");
   console.log(`   - tell_user: "${demo5Result.tell_user}"`);
+
+
+  // ========================================================================
+  // Demo 6: Small Expense with invalid types
+  // ========================================================================
+  console.log("=".repeat(70));
+  console.log("DEMO 6: Small Expense with Invalid Types");
+  console.log("=".repeat(70));
+  console.log("\nSubmitting a $15 expense (under receipt threshold)...\n");
+
+  const demo6 = await client.callTool({
+    name: "submit_expense",
+    arguments: {
+      amount: "$15", // Invalid type: should be a number, not a string
+      category: "meals",
+      description: "Coffee meeting",
+      date: new Date().toISOString().split("T")[0],
+    },
+  });
+  const demo6Result = parseResult(demo6);
+
+  console.log("TOOL RESPONSE:");
+  console.log(JSON.stringify(demo6Result, null, 2));
+  // console.log("\n📌 Success responses also provide guidance:");
+  // console.log(`   - tell_user: "${demo6Result.tell_user}"`);
 
   // ========================================================================
   // Summary
