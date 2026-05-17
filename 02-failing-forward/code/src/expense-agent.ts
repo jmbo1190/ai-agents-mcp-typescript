@@ -264,7 +264,30 @@ Be helpful and guide the user through the expense submission process.`;
 // Entry Point
 // ============================================================================
 
-const userMessage = process.argv[2] || "Submit a $150 dinner expense with a client from last Tuesday";
+// const userMessage = process.argv[2] || "Submit a $150 dinner expense with a client from last Tuesday";
+
+let userMessage; // || "Submit a $150 dinner expense with a client from last Tuesday";;
+const defaultQuestion = process.argv[2] || "Submit a $150 dinner expense with a client from last Tuesday";
+
+if (!userMessage) {
+  // prompt the user to enter a Question and await input
+  const readline = await import("node:readline");
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  const question = (query: string) =>
+    new Promise<string>((resolve) => rl.question(query, resolve));
+
+  userMessage = await question(
+    `Enter your question to the file research agent [${defaultQuestion}]: `,
+  );
+  userMessage = userMessage.trim() || defaultQuestion;
+  rl.close();
+}
+
+
 
 runAgent(userMessage).catch((error) => {
   console.error("Agent error:", error.message);
