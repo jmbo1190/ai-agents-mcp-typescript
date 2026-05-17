@@ -51,9 +51,9 @@ interface Approval {
 }
 
 class MockDatabase {
-  private expenses: Map<string, Expense> = new Map();
-  private receipts: Map<string, Receipt> = new Map();
-  private approvals: Map<string, Approval> = new Map();
+  private readonly expenses: Map<string, Expense> = new Map();
+  private readonly receipts: Map<string, Receipt> = new Map();
+  private readonly approvals: Map<string, Approval> = new Map();
   private expenseCounter = 1;
   private receiptCounter = 1;
   private approvalCounter = 1;
@@ -148,9 +148,10 @@ const LATE_EXPENSE_DAYS = 90;
 // Tool 1: Submit Expense (Main tool demonstrating all patterns)
 // ============================================================================
 
-server.tool(
+server.registerTool(
   "submit_expense",
-  `Submit an expense for reimbursement.
+  {
+    description: `Submit an expense for reimbursement.
 
 This tool demonstrates the Failing Forward pattern - errors guide recovery.
 
@@ -162,13 +163,14 @@ IMPORTANT: This tool will return structured errors with next_action when:
 - Amount exceeds approval threshold ($${APPROVAL_THRESHOLD}+)
 
 Always check the status field in the response and follow the next_action if provided.`,
-  {
-    amount: z.number().describe("Expense amount in USD"),
-    category: z.string().describe(`One of: ${VALID_CATEGORIES.join(", ")}`),
-    description: z.string().describe("Brief description of the expense"),
-    date: z.string().describe("Date of expense in YYYY-MM-DD format"),
-    receipt_url: z.string().optional().describe("URL to receipt image (required for expenses over $25)"),
-    approval_id: z.string().optional().describe("Approval ID for expenses over $100 or late expenses"),
+    inputSchema: z.object({
+      amount: z.number().describe("Expense amount in USD"),
+      category: z.string().describe(`One of: ${VALID_CATEGORIES.join(", ")}`),
+      description: z.string().describe("Brief description of the expense"),
+      date: z.string().describe("Date of expense in YYYY-MM-DD format"),
+      receipt_url: z.string().optional().describe("URL to receipt image (required for expenses over $25)"),
+      approval_id: z.string().optional().describe("Approval ID for expenses over $100 or late expenses"),
+    }),
   },
   async ({ amount, category, description, date, receipt_url, approval_id }) => {
     // ========================================================================
@@ -190,6 +192,7 @@ Always check the status field in the response and follow the next_action if prov
     // ========================================================================
     const expenseDate = new Date(date);
     const today = new Date();
+    expenseDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
 
     if (expenseDate > today) {
@@ -343,16 +346,18 @@ Always check the status field in the response and follow the next_action if prov
 // Tool 2: Upload Receipt
 // ============================================================================
 
-server.tool(
+server.registerTool(
   "upload_receipt",
-  `Upload a receipt image for an expense.
+  {
+    description: `Upload a receipt image for an expense.
 
 Returns a receipt_url that can be used with submit_expense.
 This is typically called after submit_expense returns a receipt_required error.`,
-  {
-    expense_amount: z.number().describe("The amount of the expense this receipt is for"),
-    file_data: z.string().optional().describe("Base64 encoded file data (simulated in this example)"),
-    file_type: z.string().optional().describe("File mime type: image/jpeg, image/png, or application/pdf"),
+    inputSchema: z.object({
+      expense_amount: z.number().describe("The amount of the expense this receipt is for"),
+      file_data: z.string().optional().describe("Base64 encoded file data (simulated in this example)"),
+      file_type: z.string().optional().describe("File mime type: image/jpeg, image/png, or application/pdf"),
+    }),
   },
   async ({ expense_amount, file_type }) => {
     // Validate file type if provided
@@ -391,18 +396,20 @@ This is typically called after submit_expense returns a receipt_required error.`
 // Tool 3: Request Expense Approval (for large expenses)
 // ============================================================================
 
-server.tool(
+server.registerTool(
   "request_expense_approval",
-  `Request manager approval for a large expense (over $${APPROVAL_THRESHOLD}).
+  {
+    description: `Request manager approval for a large expense (over $${APPROVAL_THRESHOLD}).
 
 Returns an approval_id that can be used with submit_expense.
 In a real system, this would send a notification to the manager.`,
-  {
-    amount: z.number().describe("Expense amount"),
-    category: z.string().describe("Expense category"),
-    description: z.string().describe("Expense description"),
-    date: z.string().describe("Expense date"),
-    receipt_url: z.string().optional().describe("Receipt URL if already uploaded"),
+    inputSchema: z.object({
+      amount: z.number().describe("Expense amount"),
+      category: z.string().describe("Expense category"),
+      description: z.string().describe("Expense description"),
+      date: z.string().describe("Expense date"),
+      receipt_url: z.string().optional().describe("Receipt URL if already uploaded"),
+    }),
   },
   async ({ amount, category, description, date, receipt_url }) => {
     const approval = await database.createApproval({
@@ -436,19 +443,21 @@ In a real system, this would send a notification to the manager.`,
 // Tool 4: Request Late Expense Approval (for old expenses)
 // ============================================================================
 
-server.tool(
+server.registerTool(
   "request_late_expense_approval",
-  `Request special approval for an expense that's over ${LATE_EXPENSE_DAYS} days old.
+  {
+    description: `Request special approval for an expense that's over ${LATE_EXPENSE_DAYS} days old.
 
 Requires a reason for why the expense is being submitted late.
 Returns an approval_id that can be used with submit_expense.`,
-  {
-    expense_date: z.string().describe("Original date of the expense"),
-    days_late: z.number().describe("Number of days past the submission deadline"),
-    amount: z.number().describe("Expense amount"),
-    category: z.string().describe("Expense category"),
-    description: z.string().describe("Expense description"),
-    late_reason: z.string().describe("Explanation for why the expense is being submitted late"),
+    inputSchema: z.object({
+      expense_date: z.string().describe("Original date of the expense"),
+      days_late: z.number().describe("Number of days past the submission deadline"),
+      amount: z.number().describe("Expense amount"),
+      category: z.string().describe("Expense category"),
+      description: z.string().describe("Expense description"),
+      late_reason: z.string().describe("Explanation for why the expense is being submitted late"),
+    }),
   },
   async ({ expense_date, days_late, amount, category, description, late_reason }) => {
     // Validate that a reason was provided
@@ -499,10 +508,11 @@ Returns an approval_id that can be used with submit_expense.`,
 // Tool 5: Get Category Suggestions (helper tool)
 // ============================================================================
 
-server.tool(
+server.registerTool(
   "get_expense_categories",
-  "Get the list of valid expense categories with descriptions",
-  {},
+  {
+    description: "Get the list of valid expense categories with descriptions",
+  },
   async () => {
     const categories = [
       { name: "meals", description: "Food and beverages for business purposes", examples: ["lunch meetings", "team dinners", "client meals"] },
