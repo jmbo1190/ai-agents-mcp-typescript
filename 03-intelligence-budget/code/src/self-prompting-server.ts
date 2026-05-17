@@ -26,6 +26,8 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import OpenAI from "openai";
 import { database, storage } from "./database.js";
+import { load_api_keys } from './load_api_key.js';
+await load_api_keys(); // Load API keys (if needed)
 
 // Initialize OpenAI client for self-prompting calls
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
