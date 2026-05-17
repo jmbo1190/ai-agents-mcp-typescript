@@ -18,6 +18,8 @@ import "dotenv/config";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import OpenAI from "openai";
+import { load_api_keys } from './load_api_key.js';
+await load_api_keys(); // Load API keys (if needed)
 
 // Verify API key
 if (!process.env.OPENAI_API_KEY) {
