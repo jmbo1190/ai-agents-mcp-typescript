@@ -15,6 +15,13 @@ import "dotenv/config"; // Load API keys from .env file (if any)
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { createLLMFromEnv, Message, Tool } from "./llm.js";
+import path from "node:path";
+import fs from "node:fs";
+import { fileURLToPath } from "node:url";
+
+// Get __dirname in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Convert MCP tools to our LLM format
 function mcpToolsToLLMTools(mcpTools: any[]): Tool[] {
@@ -42,10 +49,30 @@ async function runAgent(userMessage: string) {
   // ========================================
   console.log("Connecting to MCP server...\n");
 
+  // Dynamically resolve the path to server.ts
+  let serverPath;
+  serverPath = path.resolve(__dirname, "server.ts");
+  if (!fs.existsSync(serverPath)) {
+    serverPath = path.resolve(__dirname, "src", "server.ts");
+  }
+  if (fs.existsSync(serverPath)) {
+    console.log(`Found server at: ${serverPath}\n`);
+  } else {
+    console.error("Error: Could not find server.ts at expected paths.");
+    process.exit(1);
+  }
+
+  // Connect to the server
+  // const transport = new StdioClientTransport({
+  //   command: "npx",
+  //   args: ["tsx", serverPath],
+  // });
+
   const transport = new StdioClientTransport({
-    command: "npx",
-    args: ["tsx", "server.ts"],
+    command: "node",
+    args: ["--import", "tsx", "--inspect=0", serverPath],
   });
+
 
   const client = new Client(
     { name: "file-research-agent", version: "1.0.0" },
